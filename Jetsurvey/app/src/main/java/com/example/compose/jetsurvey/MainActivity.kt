@@ -29,5 +29,10 @@ class MainActivity : AppCompatActivity() {
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
         navView.setupWithNavController(navController)
+
+        val startIndex = intent.getIntExtra(Arguments.CurrentIndex, 0)
+        if (startIndex != 0) {
+            navController.navigate(R.id.survey_fragment, intent.extras)
+        }
     }
 }

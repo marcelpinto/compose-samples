@@ -22,6 +22,10 @@ import java.security.InvalidParameterException
 
 enum class Screen { Welcome, SignUp, SignIn, Survey }
 
+object Arguments {
+    const val CurrentIndex = "currentIndex"
+}
+
 fun Fragment.navigate(to: Screen, from: Screen) {
     if (to == from) {
         throw InvalidParameterException("Can't navigate to $to")

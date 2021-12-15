@@ -39,5 +39,9 @@
         android:id="@+id/survey_fragment"
         android:name="com.example.compose.jetsurvey.survey.SurveyFragment"
         android:label="Survey">
+        <argument
+            android:name="startIndex"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 </navigation>

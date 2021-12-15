@@ -18,9 +18,7 @@ package com.example.compose.jetsurvey.survey
 
 import android.os.Build
 import com.example.compose.jetsurvey.R
-import com.example.compose.jetsurvey.survey.PossibleAnswer.Action
-import com.example.compose.jetsurvey.survey.PossibleAnswer.MultipleChoice
-import com.example.compose.jetsurvey.survey.PossibleAnswer.SingleChoice
+import com.example.compose.jetsurvey.survey.PossibleAnswer.*
 import com.example.compose.jetsurvey.survey.SurveyActionType.PICK_DATE
 import com.example.compose.jetsurvey.survey.SurveyActionType.TAKE_PHOTO
 
@@ -110,7 +108,7 @@ private val jetpackSurvey = Survey(
 
 object SurveyRepository {
 
-    suspend fun getSurvey() = jetpackSurvey
+    fun getSurvey() = jetpackSurvey
 
     @Suppress("UNUSED_PARAMETER")
     fun getSurveyResult(answers: List<Answer<*>>): SurveyResult {

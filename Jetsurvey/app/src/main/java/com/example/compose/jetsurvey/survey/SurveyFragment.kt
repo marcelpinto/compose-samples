@@ -28,6 +28,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.example.compose.jetsurvey.Arguments
 import com.example.compose.jetsurvey.R
 import com.example.compose.jetsurvey.theme.JetsurveyTheme
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -35,7 +36,8 @@ import com.google.android.material.datepicker.MaterialDatePicker
 class SurveyFragment : Fragment() {
 
     private val viewModel: SurveyViewModel by viewModels {
-        SurveyViewModelFactory(PhotoUriManager(requireContext().applicationContext))
+        val index = arguments?.getInt(Arguments.CurrentIndex) ?: 0
+        SurveyViewModelFactory(index, PhotoUriManager(requireContext().applicationContext))
     }
 
     private val takePicture = registerForActivityResult(TakePicture()) { photoSaved ->

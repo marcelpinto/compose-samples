@@ -37,9 +37,10 @@ class QuestionState(
 sealed class SurveyState {
     data class Questions(
         @StringRes val surveyTitle: Int,
-        val questionsState: List<QuestionState>
+        val questionsState: List<QuestionState>,
+        val startIndex: Int = 0
     ) : SurveyState() {
-        var currentQuestionIndex by mutableStateOf(0)
+        var currentQuestionIndex by mutableStateOf(startIndex)
     }
 
     data class Result(

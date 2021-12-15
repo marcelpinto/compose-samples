@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 const val simpleDateFormatPattern = "EEE, MMM d"
 
 class SurveyViewModel(
+    startIndex: Int,
     private val surveyRepository: SurveyRepository,
     private val photoUriManager: PhotoUriManager
 ) : ViewModel() {
@@ -65,7 +66,7 @@ class SurveyViewModel(
                     showDone = showDone
                 )
             }
-            surveyInitialState = SurveyState.Questions(survey.title, questions)
+            surveyInitialState = SurveyState.Questions(survey.title, questions, startIndex)
             _uiState.value = surveyInitialState
         }
     }
@@ -148,12 +149,13 @@ class SurveyViewModel(
 }
 
 class SurveyViewModelFactory(
+    val index: Int,
     private val photoUriManager: PhotoUriManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SurveyViewModel::class.java)) {
-            return SurveyViewModel(SurveyRepository, photoUriManager) as T
+            return SurveyViewModel(index, SurveyRepository, photoUriManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

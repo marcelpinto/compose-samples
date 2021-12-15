@@ -111,6 +111,8 @@ dependencies {
     implementation Libs.AndroidX.Compose.runtime
     implementation Libs.AndroidX.Compose.runtimeLivedata
 
+    implementation Libs.AndroidX.Glance.glanceAppWidget
+
     implementation Libs.Accompanist.permissions
 
     implementation Libs.Coil.coilCompose
