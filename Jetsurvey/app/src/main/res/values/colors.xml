@@ -16,4 +16,8 @@
   -->
 <resources>
     <color name="status_bar_color">#EFEFEF</color>
+
+    <color name="outline_color">#E9E9E9</color>
+    <color name="outline_color_checked">#FF8101EF</color>
+    <color name="outline_color_checked_background">#208101EF</color>
 </resources>
