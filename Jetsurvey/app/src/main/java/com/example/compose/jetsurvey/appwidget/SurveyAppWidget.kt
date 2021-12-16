@@ -31,12 +31,11 @@ import com.example.compose.jetsurvey.appwidget.SurveyAppWidget.Companion.indexKe
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidget.Companion.questionIndexKey
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.colorAccentDay
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.colorAccentNight
-import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.colorBackgroundDay
-import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.colorBackgroundNight
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.colorTextDayNight
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.subtitleStyle
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.titleStyle
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.widgetBackgroundModifier
+import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.widgetContainerModifier
 import com.example.compose.jetsurvey.survey.PossibleAnswer
 import com.example.compose.jetsurvey.survey.Question
 import com.example.compose.jetsurvey.survey.Survey
@@ -81,11 +80,7 @@ private fun SurveyHomepage(@StringRes title: Int, isLandscape: Boolean) {
                 modifier = GlanceModifier.fillMaxSize().defaultWeight(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    provider = ImageProvider(R.mipmap.ic_launcher),
-                    contentDescription = "",
-                    modifier = GlanceModifier.padding(bottom = 8.dp).size(48.dp, 48.dp)
-                )
+                SurveyImage()
                 Text(
                     text = stringResource(title),
                     style = titleStyle,
@@ -163,7 +158,11 @@ private fun SurveyAnswers(
     LazyColumn(modifier = modifier) {
         if (showTitle) {
             item {
-                SurveyQuestionTitle(question = question, showLogo = false)
+                SurveyQuestionTitle(
+                    question = question,
+                    showLogo = false,
+                    modifier = GlanceModifier.fillMaxWidth().height(72.dp)
+                )
             }
         }
         item {
@@ -194,23 +193,11 @@ private fun SurveyQuestionTitle(
     modifier: GlanceModifier = GlanceModifier
 ) {
     Column(
-        modifier = GlanceModifier
-            .fillMaxWidth()
-            .height(72.dp)
-            .background(
-                day = colorBackgroundNight.copy(alpha = 0.1f),
-                night = colorBackgroundDay.copy(alpha = 0.1f)
-            )
-            .cornerRadius(12.dp)
-            .then(modifier),
+        modifier = widgetContainerModifier.then(modifier),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (showLogo) {
-            Image(
-                provider = ImageProvider(R.mipmap.ic_launcher),
-                contentDescription = "",
-                modifier = GlanceModifier.padding(bottom = 8.dp).size(48.dp, 48.dp)
-            )
+            SurveyImage()
         }
         Text(
             text = stringResource(question),
@@ -218,6 +205,15 @@ private fun SurveyQuestionTitle(
             modifier = GlanceModifier.fillMaxWidth().padding(8.dp)
         )
     }
+}
+
+@Composable
+private fun SurveyImage() {
+    Image(
+        provider = ImageProvider(R.drawable.ic_jetsurvey_logo),
+        contentDescription = "JetSurvey logo",
+        modifier = GlanceModifier.padding(bottom = 8.dp).size(48.dp, 48.dp)
+    )
 }
 
 @Composable
