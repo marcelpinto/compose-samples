@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -35,6 +36,7 @@ import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.colorBackgro
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.colorTextDayNight
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.subtitleStyle
 import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.titleStyle
+import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetTheme.widgetBackgroundModifier
 import com.example.compose.jetsurvey.survey.PossibleAnswer
 import com.example.compose.jetsurvey.survey.Question
 import com.example.compose.jetsurvey.survey.Survey
@@ -45,30 +47,25 @@ class SurveyAppWidget(private val survey: Survey) : GlanceAppWidget() {
     companion object {
         val indexKey = intPreferencesKey(Arguments.CurrentIndex)
         val questionIndexKey = ActionParameters.Key<String>("questionIndex")
+
+        private val PORTRAIT_SIZE = DpSize(110.dp, 110.dp)
+        private val LANDSCAPE_SIZE = DpSize(250.dp, 0.dp)
     }
 
     override val stateDefinition = PreferencesGlanceStateDefinition
+
+    override val sizeMode: SizeMode = SizeMode.Responsive(
+        setOf(PORTRAIT_SIZE, LANDSCAPE_SIZE)
+    )
 
     @Composable
     override fun Content() {
         val currentState = currentState<Preferences>()
         val currentIndex = currentState[indexKey] ?: -1
-        Column(
-            modifier = GlanceModifier.fillMaxSize()
-                .padding(24.dp)
-                .appWidgetBackground()
-                .background(
-                    day = colorBackgroundDay,
-                    night = colorBackgroundNight
-                )
-                .cornerRadius(24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (currentIndex == -1) {
-                SurveyHomepage(survey.title)
-            } else {
-                SurveyQuestionnaire(survey.questions.first())
-            }
+        val isLandscape = LocalSize.current == LANDSCAPE_SIZE
+        when (currentIndex) {
+            -1 -> SurveyHomepage(survey.title, isLandscape)
+            else -> SurveyQuestionnaire(survey.questions.first(), isLandscape)
         }
     }
 }
@@ -77,26 +74,97 @@ class SurveyAppWidget(private val survey: Survey) : GlanceAppWidget() {
 private fun stringResource(stringId: Int) = LocalContext.current.resources.getString(stringId)
 
 @Composable
-private fun ColumnScope.SurveyHomepage(@StringRes title: Int) {
-    Text(
-        text = stringResource(title),
-        style = titleStyle,
-        modifier = GlanceModifier.fillMaxWidth().padding(bottom = 32.dp)
-    )
-    SurveyButton(
-        text = "START QUIZ",
-        onClick = actionRunCallback<SurveyNextAction>(
-            actionParametersOf(indexKey.toParametersKey() to 0)
-        )
-    )
+private fun SurveyHomepage(@StringRes title: Int, isLandscape: Boolean) {
+    if (isLandscape) {
+        Row(modifier = widgetBackgroundModifier) {
+            Column(
+                modifier = GlanceModifier.fillMaxSize().defaultWeight(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    provider = ImageProvider(R.mipmap.ic_launcher),
+                    contentDescription = "",
+                    modifier = GlanceModifier.padding(bottom = 8.dp).size(48.dp, 48.dp)
+                )
+                Text(
+                    text = stringResource(title),
+                    style = titleStyle,
+                    modifier = GlanceModifier.fillMaxWidth()
+                )
+            }
+            Box(
+                modifier = GlanceModifier.fillMaxSize().defaultWeight().padding(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                SurveyButton(
+                    text = "START QUIZ",
+                    onClick = actionRunCallback<SurveyNextAction>(
+                        actionParametersOf(indexKey.toParametersKey() to 0)
+                    )
+                )
+            }
+        }
+    } else {
+        Column(
+            modifier = widgetBackgroundModifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(title),
+                style = titleStyle,
+                modifier = GlanceModifier.fillMaxWidth().padding(bottom = 32.dp)
+            )
+            SurveyButton(
+                text = "START QUIZ",
+                onClick = actionRunCallback<SurveyNextAction>(
+                    actionParametersOf(indexKey.toParametersKey() to 0)
+                )
+            )
+        }
+    }
 }
 
 @Composable
-private fun SurveyQuestionnaire(question: Question) {
+private fun SurveyQuestionnaire(question: Question, isLandscape: Boolean) {
     val answer = question.answer as PossibleAnswer.MultipleChoice
-    LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
-        item {
-            SurveyQuestionTitle(question.questionText)
+
+    if (isLandscape) {
+        Row(modifier = widgetBackgroundModifier) {
+            SurveyQuestionTitle(
+                question = question.questionText,
+                showLogo = true,
+                modifier = GlanceModifier.fillMaxSize().defaultWeight().padding(8.dp)
+            )
+            Spacer(modifier = GlanceModifier.fillMaxHeight().width(12.dp))
+            SurveyAnswers(
+                question = question.questionText,
+                answer = answer,
+                showTitle = false,
+                modifier = GlanceModifier.fillMaxSize().defaultWeight()
+            )
+        }
+    } else {
+        SurveyAnswers(
+            question = question.questionText,
+            answer = answer,
+            showTitle = true,
+            modifier = widgetBackgroundModifier
+        )
+    }
+}
+
+@Composable
+private fun SurveyAnswers(
+    @StringRes question: Int,
+    answer: PossibleAnswer.MultipleChoice,
+    showTitle: Boolean,
+    modifier: GlanceModifier
+) {
+    LazyColumn(modifier = modifier) {
+        if (showTitle) {
+            item {
+                SurveyQuestionTitle(question = question, showLogo = false)
+            }
         }
         item {
             Text(
@@ -120,8 +188,12 @@ private fun SurveyQuestionnaire(question: Question) {
 }
 
 @Composable
-private fun SurveyQuestionTitle(@StringRes question: Int) {
-    Box(
+private fun SurveyQuestionTitle(
+    @StringRes question: Int,
+    showLogo: Boolean,
+    modifier: GlanceModifier = GlanceModifier
+) {
+    Column(
         modifier = GlanceModifier
             .fillMaxWidth()
             .height(72.dp)
@@ -129,9 +201,17 @@ private fun SurveyQuestionTitle(@StringRes question: Int) {
                 day = colorBackgroundNight.copy(alpha = 0.1f),
                 night = colorBackgroundDay.copy(alpha = 0.1f)
             )
-            .cornerRadius(12.dp),
-        contentAlignment = Alignment.Center
+            .cornerRadius(12.dp)
+            .then(modifier),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        if (showLogo) {
+            Image(
+                provider = ImageProvider(R.mipmap.ic_launcher),
+                contentDescription = "",
+                modifier = GlanceModifier.padding(bottom = 8.dp).size(48.dp, 48.dp)
+            )
+        }
         Text(
             text = stringResource(question),
             style = titleStyle,
@@ -223,13 +303,8 @@ class SurveyAnswerAction : ActionCallback {
 
 class SurveyNextAction : ActionCallback {
     override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val widget = SurveyAppWidget(SurveyRepository.getSurvey())
-        widget.updateAppWidgetState<Preferences>(context, glanceId) {
-            it.toMutablePreferences().apply {
-                this[indexKey] = parameters[indexKey.toParametersKey()] ?: 0
-            }
-        }
-        widget.update(context, glanceId)
+        val manager = SurveyAppWidgetManager(context)
+        manager.updateQuestionIndex(parameters[indexKey.toParametersKey()] ?: 0)
     }
 }
 

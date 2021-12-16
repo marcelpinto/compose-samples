@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.compose.jetsurvey.Arguments
 import com.example.compose.jetsurvey.R
+import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetManager
 import com.example.compose.jetsurvey.theme.JetsurveyTheme
 import com.google.android.material.datepicker.MaterialDatePicker
 
@@ -37,7 +38,12 @@ class SurveyFragment : Fragment() {
 
     private val viewModel: SurveyViewModel by viewModels {
         val index = arguments?.getInt(Arguments.CurrentIndex) ?: 0
-        SurveyViewModelFactory(index, PhotoUriManager(requireContext().applicationContext))
+        val appContext = requireContext().applicationContext
+        SurveyViewModelFactory(
+            index = index,
+            photoUriManager = PhotoUriManager(appContext),
+            surveyAppWidgetManager = SurveyAppWidgetManager(appContext)
+        )
     }
 
     private val takePicture = registerForActivityResult(TakePicture()) { photoSaved ->
@@ -84,7 +90,7 @@ class SurveyFragment : Fragment() {
                             is SurveyState.Result -> SurveyResultScreen(
                                 result = surveyState,
                                 onDonePressed = {
-                                    activity?.onBackPressedDispatcher?.onBackPressed()
+                                    requireActivity().finish()
                                 }
                             )
                         }

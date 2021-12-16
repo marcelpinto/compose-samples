@@ -20,22 +20,19 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import androidx.lifecycle.*
+import com.example.compose.jetsurvey.appwidget.SurveyAppWidgetManager
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 const val simpleDateFormatPattern = "EEE, MMM d"
 
 class SurveyViewModel(
     startIndex: Int,
     private val surveyRepository: SurveyRepository,
-    private val photoUriManager: PhotoUriManager
+    private val photoUriManager: PhotoUriManager,
+    private val surveyAppWidgetManager: SurveyAppWidgetManager
 ) : ViewModel() {
 
     private val _uiState = MutableLiveData<SurveyState>()
@@ -75,6 +72,14 @@ class SurveyViewModel(
         val answers = surveyQuestions.questionsState.mapNotNull { it.answer }
         val result = surveyRepository.getSurveyResult(answers)
         _uiState.value = SurveyState.Result(surveyQuestions.surveyTitle, result)
+
+        notifyCompletion()
+    }
+
+    private fun notifyCompletion() {
+        viewModelScope.launch {
+            surveyAppWidgetManager.reset()
+        }
     }
 
     fun onDatePicked(questionId: Int, pickerSelection: Long?) {
@@ -149,13 +154,19 @@ class SurveyViewModel(
 }
 
 class SurveyViewModelFactory(
-    val index: Int,
-    private val photoUriManager: PhotoUriManager
+    private val index: Int,
+    private val photoUriManager: PhotoUriManager,
+    private val surveyAppWidgetManager: SurveyAppWidgetManager
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SurveyViewModel::class.java)) {
-            return SurveyViewModel(index, SurveyRepository, photoUriManager) as T
+            return SurveyViewModel(
+                startIndex = index,
+                surveyRepository = SurveyRepository,
+                photoUriManager = photoUriManager,
+                surveyAppWidgetManager = surveyAppWidgetManager
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
