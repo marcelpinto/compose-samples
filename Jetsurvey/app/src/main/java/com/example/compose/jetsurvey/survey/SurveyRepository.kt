@@ -65,41 +65,7 @@ private val jetpackQuestions = mutableListOf(
         ),
         description = R.string.select_one
     ),
-    Question(
-        id = 3,
-        questionText = R.string.takeaway,
-        answer = Action(label = R.string.pick_date, actionType = PICK_DATE),
-        description = R.string.select_date
-    ),
-    Question(
-        id = 4,
-        questionText = R.string.selfies,
-        answer = PossibleAnswer.Slider(
-            range = 1f..10f,
-            steps = 3,
-            startText = R.string.strongly_dislike,
-            endText = R.string.strongly_like,
-            neutralText = R.string.neutral
-        )
-    ),
-).apply {
-    // TODO: FIX! After taking the selfie, the picture doesn't appear in API 22 and lower.
-    if (Build.VERSION.SDK_INT >= 23) {
-        add(
-            Question(
-                id = 975,
-                questionText = R.string.selfie_skills,
-                answer = Action(label = R.string.add_photo, actionType = TAKE_PHOTO),
-                permissionsRequired =
-                when (Build.VERSION.SDK_INT) {
-                    in 23..28 -> listOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    else -> emptyList()
-                },
-                permissionsRationaleText = R.string.selfie_permissions
-            )
-        )
-    }
-}.toList()
+).toList()
 
 private val jetpackSurvey = Survey(
     title = R.string.which_jetpack_library,

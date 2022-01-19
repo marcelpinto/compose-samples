@@ -40,7 +40,7 @@
         android:name="com.example.compose.jetsurvey.survey.SurveyFragment"
         android:label="Survey">
         <argument
-            android:name="startIndex"
+            android:name="currentIndex"
             app:argType="integer"
             android:defaultValue="0" />
     </fragment>
